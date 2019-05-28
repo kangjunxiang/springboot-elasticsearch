@@ -2,6 +2,8 @@ package com.sxw.elasticsearch;
 
 import com.sxw.elasticsearch.model.Item;
 import com.sxw.elasticsearch.repository.ItemRepository;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -11,19 +13,26 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * 根据官方文档测试常用的api
+ * 文档地址:https://docs.spring.io/spring-data/elasticsearch/docs/current/reference/html/
+ */
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class SpringbootElasticsearchApplicationTests {
+public class ElasticsearchApplicationTests {
 
-    private static final Logger logger = LoggerFactory.getLogger(SpringbootElasticsearchApplicationTests.class);
+    private static final Logger logger = LoggerFactory.getLogger(ElasticsearchApplicationTests.class);
     @Autowired private ElasticsearchTemplate elasticsearchTemplate;
     @Autowired private ItemRepository itemRepository;
+
 
     /**
      * @Description:创建索引，会根据Item类的@Document注解信息来创建
@@ -140,7 +149,8 @@ public class SpringbootElasticsearchApplicationTests {
      */
     @Test
     public void testPage(){
-        Page<Item> page = itemRepository.findAll(PageRequest.of(1, 3));
+        // 注意：页数从 0 开始，0 代表第一页
+        Page<Item> page = itemRepository.findAll(PageRequest.of(0, 3));
         // 总条数
         logger.info(page.getTotalElements() + "");
 
@@ -153,28 +163,48 @@ public class SpringbootElasticsearchApplicationTests {
         logger.info(page.getTotalPages() + "");
     }
 
+    /**
+     * 区间检索
+     */
     @Test
-    public void test4(){
-        logger.info("");
+    public void testBetween(){
+        List<Item> items = itemRepository.findByPriceBetween(50.0,70.0);
+        for (Item item : items) {
+            logger.info(item.toString());
+        }
     }
 
+    /**
+     * 测试查询
+     */
     @Test
-    public void test5(){
-        logger.info("");
-    }
+    public void testQuery(){
+        String keyword = "程序设计";
 
-    @Test
-    public void test6(){
-        logger.info("");
-    }
+        BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
+        // 给name字段更高的权重
+        queryBuilder.should(QueryBuilders.matchQuery("title", keyword).boost(3));
+        // description 默认权重 1
+        queryBuilder.should(QueryBuilders.matchQuery("category", keyword));
+        // 至少一个should条件满足
+        queryBuilder.minimumShouldMatch(1);
 
-    @Test
-    public void test7(){
-        logger.info("");
-    }
+        SearchQuery searchQuery = new NativeSearchQueryBuilder().withQuery(queryBuilder)
+                .withPageable(PageRequest.of(0, 10))
+                .build();
+        logger.info("\n search(): searchContent [" + keyword + "] \n DSL  = \n " + searchQuery.getQuery().toString());
 
-    @Test
-    public void test8(){
-        logger.info("");
+        Page<Item> page = itemRepository.search(searchQuery);
+
+        // 总条数
+        logger.info(page.getTotalElements() + "");
+
+        Iterator<Item> iterator = page.iterator();
+        while (iterator.hasNext()){
+            logger.info(iterator.next().toString());
+        }
+
+        // 总页数
+        logger.info(page.getTotalPages() + "");
     }
 }

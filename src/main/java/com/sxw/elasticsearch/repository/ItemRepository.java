@@ -18,4 +18,15 @@ public interface ItemRepository extends ElasticsearchRepository<Item,Long> {
      */
     List<Item> findByTitleLike(String title);
 
+    /**
+     * 根据 价格 区间检索
+     * @param lower
+     * @param upper
+     * @return
+     */
+    List<Item> findByPriceBetween(Double lower,Double upper);
+
+
+
+
 }
