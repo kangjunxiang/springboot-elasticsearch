@@ -2,7 +2,7 @@
 
 > 基于SpringBoot整合ElasticSearch,使用Spring Data Elasticsearch实现对ES的基础操作
 
-## 运行测试类：[ElasticsearchApplicationTests]()
+## 运行测试类：[ElasticsearchApplicationTests](https://github.com/suxiongwei/springboot-elasticsearch/blob/master/src/test/java/com/sxw/elasticsearch/ElasticsearchApplicationTests.java)
 
 测试类记录了常用的操作API
 
