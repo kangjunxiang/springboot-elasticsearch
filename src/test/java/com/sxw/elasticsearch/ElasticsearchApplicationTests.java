@@ -1,9 +1,13 @@
 package com.sxw.elasticsearch;
 
+import com.sxw.elasticsearch.mapper.ExtResultMapper;
 import com.sxw.elasticsearch.model.Item;
 import com.sxw.elasticsearch.repository.ItemRepository;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.DisMaxQueryBuilder;
+import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -13,10 +17,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.annotation.Resource;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +38,7 @@ public class ElasticsearchApplicationTests {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchApplicationTests.class);
     @Autowired private ElasticsearchTemplate elasticsearchTemplate;
     @Autowired private ItemRepository itemRepository;
+    @Resource private ExtResultMapper extResultMapper;
 
 
     /**
@@ -206,5 +213,36 @@ public class ElasticsearchApplicationTests {
 
         // 总页数
         logger.info(page.getTotalPages() + "");
+    }
+
+    /**
+     * 测试查询高亮
+     * 参考文章：https://www.cnblogs.com/vcmq/p/9966693.html
+     */
+    @Test
+    public void testHighlightQuery(){
+        String keyword = "程序设计";
+
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+
+        // 至少一个should条件满足
+        boolQuery.minimumShouldMatch(1);
+
+        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder()
+                .withQuery(boolQuery)
+                .withHighlightFields(
+                        new HighlightBuilder.Field("title").preTags("<span style=\"color:red\">").postTags("</span>"),
+                        new HighlightBuilder.Field("brand").preTags("<span style=\"color:red\">").postTags("</span>"))
+                .withPageable(PageRequest.of(0, 10));
+        // 最佳字段  + 降低除了name之外字段的权重系数
+        MatchQueryBuilder nameQuery = QueryBuilders.matchQuery("title", keyword).analyzer("ik_max_word");
+        MatchQueryBuilder authorQuery = QueryBuilders.matchQuery("brand", keyword).boost(0.8f);
+        DisMaxQueryBuilder disMaxQueryBuilder = QueryBuilders.disMaxQuery().add(nameQuery).add(authorQuery);
+        queryBuilder.withQuery(disMaxQueryBuilder);
+
+        NativeSearchQuery searchQuery = queryBuilder.build();
+        Page<Item> items = elasticsearchTemplate.queryForPage(searchQuery, Item.class, extResultMapper);
+
+        items.forEach(e -> logger.info("{}", e));
     }
 }
