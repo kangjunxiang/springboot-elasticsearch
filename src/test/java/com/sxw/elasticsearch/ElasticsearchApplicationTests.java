@@ -1,7 +1,7 @@
 package com.sxw.elasticsearch;
 
 import com.sxw.elasticsearch.mapper.ExtResultMapper;
-import com.sxw.elasticsearch.model.Item;
+import com.sxw.elasticsearch.pojo.entity.Item;
 import com.sxw.elasticsearch.repository.ItemRepository;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.DisMaxQueryBuilder;

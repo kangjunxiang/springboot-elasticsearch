@@ -1,6 +1,6 @@
 package com.sxw.elasticsearch.repository;
 
-import com.sxw.elasticsearch.model.Item;
+import com.sxw.elasticsearch.pojo.entity.Item;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.stereotype.Component;
 

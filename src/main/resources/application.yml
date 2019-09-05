@@ -1,0 +1,25 @@
+## Elasticsearch配置文件（必须）
+## 该配置和Elasticsearch的elasticsearch.yml中的配置信息有关
+spring:
+  profiles:
+    active: dev
+#  data:
+#    elasticsearch:
+#      cluster-name: my-application
+  elasticsearch:
+    jest:
+      uris: http://localhost:9200
+      read-timeout: 10000
+      username: user
+      password: secret
+  devtools:
+    restart:
+      exclude:
+
+http-pool:
+  max-total: 200
+  default-max-per-route: 100
+  connect-timeout: 5000
+  connection-request-timeout: 1000
+  socket-timeout: 65000
+  validate-after-inactivity: 2000

@@ -1,4 +1,4 @@
-package com.sxw.elasticsearch.model;
+package com.sxw.elasticsearch.pojo.entity;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;

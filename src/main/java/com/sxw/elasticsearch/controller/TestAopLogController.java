@@ -1,7 +1,7 @@
 package com.sxw.elasticsearch.controller;
 
 import com.sxw.elasticsearch.aspect.WebLog;
-import com.sxw.elasticsearch.model.User;
+import com.sxw.elasticsearch.pojo.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
