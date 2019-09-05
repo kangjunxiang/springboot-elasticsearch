@@ -21,7 +21,16 @@
 1. 启动 ElasticSearch 6.X+
 2. 修改 application.yml 中的 spring.elasticsearch.jest.uris 参数
 3. 启动 SpringBoot 项目
-4. 访问 localhost:8080/crawl 开启爬虫
+4. 运行测试类[DouBanMovieTest](https://github.com/suxiongwei/springboot-elasticsearch/blob/elasticsearch-jest/src/test/java/com/sxw/elasticsearch/crawler/DouBanMovieTest.java)的savaMovieToES方法初始化数据到es中
 5. 访问 localhost:8080 开始搜索
 
+#### 2.3 演示效果
+
+- 通过elasticsearch-head查看导入的数据
+
+  ![电影基础数据](https://github.com/suxiongwei/springboot-elasticsearch/blob/elasticsearch-jest/src/main/resources/static/img/es_data.jpg)
+
+- 搜索页面
+
+  ![搜索页面](https://github.com/suxiongwei/springboot-elasticsearch/blob/elasticsearch-jest/src/main/resources/static/img/search.jpg)
 
