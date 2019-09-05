@@ -3,9 +3,6 @@
 spring:
   profiles:
     active: dev
-#  data:
-#    elasticsearch:
-#      cluster-name: my-application
   elasticsearch:
     jest:
       uris: http://localhost:9200
