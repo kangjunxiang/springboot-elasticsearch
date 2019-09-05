@@ -1,14 +1,27 @@
-# springboot-elasticsearch
+## 基于SpringBoot整合ElasticSearch
 
-> 基于SpringBoot整合ElasticSearch,使用Spring Data Elasticsearch实现对ES的基础操作
+### 1、[master分支](https://github.com/suxiongwei/springboot-elasticsearch)：基于SpringBoot2.0整合ElasticSearch,使用Spring Data Elasticsearch实现对ES的基础操作
 
-## 运行测试类：[ElasticsearchApplicationTests](https://github.com/suxiongwei/springboot-elasticsearch/blob/master/src/test/java/com/sxw/elasticsearch/ElasticsearchApplicationTests.java)
+#### 运行测试类：[ElasticsearchApplicationTests](https://github.com/suxiongwei/springboot-elasticsearch/blob/master/src/test/java/com/sxw/elasticsearch/ElasticsearchApplicationTests.java)
 
 测试类记录了常用的操作API
 
-## 官网文档地址：[Spring Data Elasticsearch](https://docs.spring.io/spring-data/elasticsearch/docs/current/reference/html/)
+#### 官网文档地址：[Spring Data Elasticsearch](https://docs.spring.io/spring-data/elasticsearch/docs/current/reference/html/)
 
+### 2、[elasticsearch-jest分支](https://github.com/suxiongwei/springboot-elasticsearch/tree/elasticsearch-jest): 基于SpringBoot2.0整合ElasticSearch，使用 Jest 客户端实现的电影搜索网站
 
+### 本地部署
 
+#### 2.1 电影数据的获取
+
+爬取了豆瓣的不同类型的电影作为搜索的基础数据，数据在项目的文件夹下可以找到，大家学习的时候就不用再去爬取了，爬虫需谨慎。电影数据路径：https://github.com/suxiongwei/springboot-elasticsearch/tree/elasticsearch-jest/src/main/resources/data
+
+#### 2.2 启动项目
+
+1. 启动 ElasticSearch 6.X+
+2. 修改 application.yml 中的 spring.elasticsearch.jest.uris 参数
+3. 启动 SpringBoot 项目
+4. 访问 localhost:8080/crawl 开启爬虫
+5. 访问 localhost:8080 开始搜索
 
 
