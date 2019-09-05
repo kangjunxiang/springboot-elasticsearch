@@ -1,27 +1,36 @@
-# springboot-elasticsearch
+## 基于SpringBoot整合ElasticSearch
 
-> 基于SpringBoot整合ElasticSearch,使用Spring Data Elasticsearch实现对ES的基础操作
+### 1、[master分支](https://github.com/suxiongwei/springboot-elasticsearch)：基于SpringBoot2.0整合ElasticSearch,使用Spring Data Elasticsearch实现对ES的基础操作
 
-## 运行测试类：[ElasticsearchApplicationTests](https://github.com/suxiongwei/springboot-elasticsearch/blob/master/src/test/java/com/sxw/elasticsearch/ElasticsearchApplicationTests.java)
+#### 运行测试类：[ElasticsearchApplicationTests](https://github.com/suxiongwei/springboot-elasticsearch/blob/master/src/test/java/com/sxw/elasticsearch/ElasticsearchApplicationTests.java)
 
 测试类记录了常用的操作API
 
-## 官网文档地址：[Spring Data Elasticsearch](https://docs.spring.io/spring-data/elasticsearch/docs/current/reference/html/)
+#### 官网文档地址：[Spring Data Elasticsearch](https://docs.spring.io/spring-data/elasticsearch/docs/current/reference/html/)
 
+### 2、[elasticsearch-jest分支](https://github.com/suxiongwei/springboot-elasticsearch/tree/elasticsearch-jest): 基于SpringBoot2.0整合ElasticSearch，使用 Jest 客户端实现的电影搜索网站
 
-使用 SpringBoot2.0 + ElasticSearch + Jest 实现的电影搜索网站
+### 本地部署
 
-本地部署
-启动 ElasticSearch 6.X+
-修改 application.properties 中的 spring.elasticsearch.jest.uris 参数
-启动 SpringBoot 项目
-访问 localhost:8080/crawl 开启爬虫
-访问 localhost:8080 开始搜索
+#### 2.1 电影数据的获取
 
+爬取了豆瓣的不同类型的电影作为搜索的基础数据，数据在项目的文件夹下可以找到，大家学习的时候就不用再去爬取了，爬虫需谨慎。电影数据路径：https://github.com/suxiongwei/springboot-elasticsearch/tree/elasticsearch-jest/src/main/resources/data
 
-在学习 ElasticSearch 的过程中，发现 ElasticSearch 的 Java 客户端选择太多，使用两种不同的通讯协议，而且 2.X 和 5.X+ 版本差异较大。
-这种现象对于选择困难症患者来说不是非常友好，本来 spring-data-elasticsearch 应该是首要选择，但是我发现 SpringBoot 官方文档中首先推荐使用的是 Jest， 其次才是自家的 spring-data-elasticsearch。
-深入使用后发现，spring-data-elasticsearch 基于 TransportClient，这个客户端使用 Java 序列化机制(9300 端口)通讯，ElasticSearch 官方准备废弃该客户端。
-应该使用 REST 客户端(9200 端口)代替。这就让 Jest 成了该项目的首选。
+#### 2.2 启动项目
 
+1. 启动 ElasticSearch 6.X+
+2. 修改 application.yml 中的 spring.elasticsearch.jest.uris 参数
+3. 启动 SpringBoot 项目
+4. 运行测试类[DouBanMovieTest](https://github.com/suxiongwei/springboot-elasticsearch/blob/elasticsearch-jest/src/test/java/com/sxw/elasticsearch/crawler/DouBanMovieTest.java)的savaMovieToES方法初始化数据到es中
+5. 访问 localhost:8080 开始搜索
+
+#### 2.3 演示效果
+
+- 通过elasticsearch-head查看导入的数据
+
+  ![电影基础数据](https://github.com/suxiongwei/springboot-elasticsearch/blob/elasticsearch-jest/src/main/resources/static/img/es_data.jpg)
+
+- 搜索页面
+
+  ![搜索页面](https://github.com/suxiongwei/springboot-elasticsearch/blob/elasticsearch-jest/src/main/resources/static/img/search.jpg)
 
