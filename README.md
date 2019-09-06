@@ -32,3 +32,155 @@
 
   ![搜索页面](https://github.com/suxiongwei/springboot-elasticsearch/blob/elasticsearch-jest/src/main/resources/static/img/search.jpg)
 
+
+### 其它
+- 查看ik分词效果：
+```
+curl -H 'Content-Type:application/json' 'http://localhost:9200/douban_movie/_analyze?pretty=true' -d '
+{
+  "text":"中华人民共和国",
+  "analyzer" : "ik_max_word"
+ }'
+```
+返回结果
+```json
+{
+  "tokens" : [
+    {
+      "token" : "中华人民共和国",
+      "start_offset" : 0,
+      "end_offset" : 7,
+      "type" : "CN_WORD",
+      "position" : 0
+    },
+    {
+      "token" : "中华人民",
+      "start_offset" : 0,
+      "end_offset" : 4,
+      "type" : "CN_WORD",
+      "position" : 1
+    },
+    {
+      "token" : "中华",
+      "start_offset" : 0,
+      "end_offset" : 2,
+      "type" : "CN_WORD",
+      "position" : 2
+    },
+    {
+      "token" : "华人",
+      "start_offset" : 1,
+      "end_offset" : 3,
+      "type" : "CN_WORD",
+      "position" : 3
+    },
+    {
+      "token" : "人民共和国",
+      "start_offset" : 2,
+      "end_offset" : 7,
+      "type" : "CN_WORD",
+      "position" : 4
+    },
+    {
+      "token" : "人民",
+      "start_offset" : 2,
+      "end_offset" : 4,
+      "type" : "CN_WORD",
+      "position" : 5
+    },
+    {
+      "token" : "共和国",
+      "start_offset" : 4,
+      "end_offset" : 7,
+      "type" : "CN_WORD",
+      "position" : 6
+    },
+    {
+      "token" : "共和",
+      "start_offset" : 4,
+      "end_offset" : 6,
+      "type" : "CN_WORD",
+      "position" : 7
+    },
+    {
+      "token" : "国",
+      "start_offset" : 6,
+      "end_offset" : 7,
+      "type" : "CN_CHAR",
+      "position" : 8
+    }
+  ]
+}
+```
+
+- 查看pinyin分词效果：
+```
+curl -H 'Content-Type:application/json' 'http://localhost:9200/douban_movie/_analyze?pretty=true' -d '
+{
+  "text":"中华人民共和国",
+  "analyzer" : "pinyin"
+ }'
+```
+返回结果
+```json
+{
+  "tokens" : [
+    {
+      "token" : "zhong",
+      "start_offset" : 0,
+      "end_offset" : 0,
+      "type" : "word",
+      "position" : 0
+    },
+    {
+      "token" : "zhrmghg",
+      "start_offset" : 0,
+      "end_offset" : 0,
+      "type" : "word",
+      "position" : 0
+    },
+    {
+      "token" : "hua",
+      "start_offset" : 0,
+      "end_offset" : 0,
+      "type" : "word",
+      "position" : 1
+    },
+    {
+      "token" : "ren",
+      "start_offset" : 0,
+      "end_offset" : 0,
+      "type" : "word",
+      "position" : 2
+    },
+    {
+      "token" : "min",
+      "start_offset" : 0,
+      "end_offset" : 0,
+      "type" : "word",
+      "position" : 3
+    },
+    {
+      "token" : "gong",
+      "start_offset" : 0,
+      "end_offset" : 0,
+      "type" : "word",
+      "position" : 4
+    },
+    {
+      "token" : "he",
+      "start_offset" : 0,
+      "end_offset" : 0,
+      "type" : "word",
+      "position" : 5
+    },
+    {
+      "token" : "guo",
+      "start_offset" : 0,
+      "end_offset" : 0,
+      "type" : "word",
+      "position" : 6
+    }
+  ]
+}
+```
