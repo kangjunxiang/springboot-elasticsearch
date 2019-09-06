@@ -59,9 +59,10 @@ public class DouBanMovieESRepository implements IDouBanMovieRepository {
         queryStringQueryBuilder
                 .field("title", 10)
                 .field("actors", 3)
+                .field("regions",2)
                 .field("types");
         searchSourceBuilder.query(queryStringQueryBuilder).from(from(pageNo, size)).size(size);
-        log.debug("搜索DSL:{}", searchSourceBuilder.toString());
+        log.info("搜索DSL:{}", searchSourceBuilder.toString());
         Search search = new Search.Builder(searchSourceBuilder.toString())
                 .addIndex(INDEX)
                 .addType(TYPE)
@@ -73,10 +74,16 @@ public class DouBanMovieESRepository implements IDouBanMovieRepository {
                 DouBanMovieDTO movie = hit.source;
                 Map<String, List<String>> highlight = hit.highlight;
                 if (highlight.containsKey("title")) {
-                    movie.setTitle(highlight.get("title").get(0));
+                    movie.setTitle(highlight.get("title").get(0) + " [score]-->" + hit.score);
                 }
                 if (highlight.containsKey("actors")) {
                     movie.setActors(highlight.get("actors"));
+                }
+                if (highlight.containsKey("types")) {
+                    movie.setTypes(highlight.get("types"));
+                }
+                if (highlight.containsKey("regions")) {
+                    movie.setRegions(highlight.get("regions"));
                 }
                 return movie;
             }).collect(toList());

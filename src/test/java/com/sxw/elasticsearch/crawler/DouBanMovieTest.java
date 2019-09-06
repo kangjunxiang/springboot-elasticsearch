@@ -1,13 +1,21 @@
 package com.sxw.elasticsearch.crawler;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.sxw.elasticsearch.pojo.dto.DouBanMovieDTO;
 import com.sxw.elasticsearch.repository.IDouBanMovieRepository;
+import io.searchbox.client.JestClient;
+import io.searchbox.client.JestResult;
+import io.searchbox.indices.CreateIndex;
+import io.searchbox.indices.mapping.PutMapping;
+import io.searchbox.indices.type.TypeExist;
 import io.searchbox.strings.StringUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
@@ -42,6 +50,8 @@ public class DouBanMovieTest {
     RestTemplate restTemplate;
     @Autowired
     IDouBanMovieRepository douBanMovieRepository;
+    @Autowired
+    private JestClient client;
 
     /**
      * 根据类型获取电影数据
@@ -50,9 +60,9 @@ public class DouBanMovieTest {
      */
     @Test
     public void getMovieByType() throws Exception {
-        JsonArray Jarray = getCategory();
-        for (JsonElement jsonElement : Jarray) {
-            JsonObject jsonObject = (JsonObject) jsonElement;
+        JSONArray Jarray = getCategoryByLocalJson();
+        for (Object o : Jarray) {
+            JSONObject jsonObject = (JSONObject) o;
             String url = "https://movie.douban.com/j/chart/top_list?type=TYPE&interval_id=100%3A90&action=&start=START&limit=LIMIT";
             url = url.replace("TYPE", jsonObject.get("type").toString().replaceAll("\"",""))
                     .replace("START",0 + "")
@@ -78,7 +88,7 @@ public class DouBanMovieTest {
      */
     @Test
     public void savaMovieToES() throws IOException {
-        File file = new File("/Users/suxiongwei/Desktop/movie_json");
+        File file = new File("/Users/suxiongwei/Documents/ziyuan/movie_json");
         File[] files = file.listFiles();
         for (File file1 : files) {
             FileReader fileReader = new FileReader(file1);
@@ -132,6 +142,18 @@ public class DouBanMovieTest {
     }
 
     /**
+     * 从json中读取电影分类数据
+     * @return
+     */
+    public JSONArray getCategoryByLocalJson() throws IOException {
+        InputStream inputStream = this.getClass().getResourceAsStream("/data/movie_category.json");
+        byte[] b = new byte[1024];
+        inputStream.read(b);
+        inputStream.close();
+        return JSONArray.parseArray(new String(b));
+    }
+
+    /**
      * 将url参数转换成map
      * @param param aa=11&bb=22&cc=33
      * @return
@@ -149,6 +171,66 @@ public class DouBanMovieTest {
             }
         }
         return map;
+    }
+
+    public String createIndex(String indices) throws IOException {
+        //判断索引是否存在
+        TypeExist indexExist = new TypeExist.Builder(indices).build();
+        JestResult result = client.execute(indexExist);
+        System.out.println("index exist result " + result.getJsonString());
+        Object indexFound = result.getValue("found");
+
+        if (indexFound != null && indexFound.toString().equals("false")) {
+            //index 不存在,创建 index
+            System.out.println("index found == false");
+            JestResult createIndexresult = client.execute(new CreateIndex.Builder(indices).build());
+            System.out.println("create index:"+createIndexresult.isSucceeded());
+            if(createIndexresult.isSucceeded()) {
+                return "ok";
+            }else{
+                return "create index fail";
+            }
+        }else{
+            return "ok";
+        }
+    }
+
+    /**
+     * 创建索引时指定分词器
+     * 这里指定了：ik 和 pinyin
+     *
+     * 不指定分词器时：搜索 suduyujiqing 没有任何搜索结果
+     * 加上pinyin分词器后会返回 速度与激情 相关的电影
+     * @throws IOException
+     */
+    @Test
+    public void createMapping() throws IOException {
+        String INDEX = "douban_movie";
+        String TYPE = "movie";
+
+        JSONObject objSource = new JSONObject().fluentPut("properties", new JSONObject()
+                .fluentPut("title", new JSONObject()
+                        .fluentPut("type", "text")
+                        .fluentPut("analyzer", "ik_max_word")
+                        .fluentPut("analyzer", "pinyin")
+                )
+                .fluentPut("actors", new JSONObject()
+                        .fluentPut("type", "text")
+                        .fluentPut("analyzer", "ik_max_word")
+                        .fluentPut("analyzer", "pinyin")
+                )
+        );
+        log.info(objSource.toJSONString());
+        // 构造PutMapping
+        PutMapping putMapping = new PutMapping.Builder(INDEX,TYPE, objSource.toJSONString()).build();
+        JestResult mapingResult = client.execute(putMapping);
+        log.info(mapingResult.getJsonString());
+    }
+
+
+    public static void main(String[] args) throws IOException {
+        DouBanMovieTest douBanMovieTest = new DouBanMovieTest();
+        douBanMovieTest.getCategoryByLocalJson();
     }
 
 }
