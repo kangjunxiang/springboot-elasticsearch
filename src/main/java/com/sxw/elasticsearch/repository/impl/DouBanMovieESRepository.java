@@ -52,17 +52,24 @@ public class DouBanMovieESRepository implements IDouBanMovieRepository {
 
     @Override
     public Page<DouBanMovieDTO> query(String queryString, int pageNo, int size) {
+        // 构造搜索对象
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+
         HighlightBuilder highlightBuilder = new HighlightBuilder().field("*").requireFieldMatch(false).tagsSchema("default");
+        // 设置高亮信息
         searchSourceBuilder.highlighter(highlightBuilder);
+        // 查询条件
         QueryStringQueryBuilder queryStringQueryBuilder = new QueryStringQueryBuilder(queryString);
+        // 设置检索字段的权重
         queryStringQueryBuilder
                 .field("title", 10)
                 .field("actors", 3)
                 .field("regions",2)
                 .field("types");
+        // 设置查询条件、设置分页查询
         searchSourceBuilder.query(queryStringQueryBuilder).from(from(pageNo, size)).size(size);
         log.info("搜索DSL:{}", searchSourceBuilder.toString());
+        // 构造检索对象，指定对应索引名与索引下的数据分类
         Search search = new Search.Builder(searchSourceBuilder.toString())
                 .addIndex(INDEX)
                 .addType(TYPE)
@@ -70,6 +77,7 @@ public class DouBanMovieESRepository implements IDouBanMovieRepository {
         try {
             SearchResult result = client.execute(search);
             List<SearchResult.Hit<DouBanMovieDTO, Void>> hits = result.getHits(DouBanMovieDTO.class);
+            // 遍历结果集对结果集进行处理转换
             List<DouBanMovieDTO> movies = hits.stream().map(hit -> {
                 DouBanMovieDTO movie = hit.source;
                 Map<String, List<String>> highlight = hit.highlight;
